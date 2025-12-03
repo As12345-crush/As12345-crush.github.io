@@ -1,0 +1,1112 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>银球耀世，乒出未来</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Microsoft YaHei', sans-serif;
+        }
+        
+        body {
+            background-color: #f5f5f5;
+            color: #333;
+            line-height: 1.6;
+            background-image: url('file:///D:/jisuanji/background.jpg');
+            background-size: cover;
+            background-attachment: fixed;
+            background-position: center;
+        }
+        
+        .overlay {
+            background-color: rgba(255, 255, 255, 0.85);
+            min-height: 100vh;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        header {
+            background-image: url('file:///D:/jisuanji/background2.jpg');
+            background-size: cover;
+            background-position: center;
+            color: white;
+            padding: 60px 0;
+            text-align: center;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            position: relative;
+        }
+        
+        header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(229, 57, 53, 0.7);
+            z-index: 1;
+        }
+        
+        .header-content {
+            position: relative;
+            z-index: 2;
+        }
+        
+        .logo {
+            font-size: 2.8rem;
+            font-weight: bold;
+            margin-bottom: 15px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+        }
+        
+        .logo span {
+            color: #ffeb3b;
+        }
+        
+        .subtitle {
+            font-size: 1.2rem;
+            max-width: 600px;
+            margin: 0 auto;
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
+        }
+        
+        nav {
+            background-color: rgba(51, 51, 51, 0.9);
+            padding: 10px 0;
+        }
+        
+        nav ul {
+            display: flex;
+            justify-content: center;
+            list-style: none;
+        }
+        
+        nav ul li {
+            margin: 0 15px;
+        }
+        
+        nav ul li a {
+            color: white;
+            text-decoration: none;
+            font-weight: bold;
+            padding: 5px 10px;
+            border-radius: 4px;
+            transition: background-color 0.3s;
+        }
+        
+        nav ul li a:hover {
+            background-color: #e53935;
+        }
+        
+        .auth-container {
+            display: flex;
+            justify-content: center;
+            margin: 30px 0;
+        }
+        
+        .auth-form {
+            background-color: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            max-width: 400px;
+        }
+        
+        .auth-form h2 {
+            text-align: center;
+            margin-bottom: 20px;
+            color: #e53935;
+        }
+        
+        .form-group {
+            margin-bottom: 15px;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        
+        .form-group input {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 16px;
+        }
+        
+        .btn {
+            display: block;
+            width: 100%;
+            padding: 12px;
+            background-color: #e53935;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        
+        .btn:hover {
+            background-color: #c62828;
+        }
+        
+        .toggle-auth {
+            text-align: center;
+            margin-top: 15px;
+        }
+        
+        .toggle-auth a {
+            color: #e53935;
+            text-decoration: none;
+            font-weight: bold;
+        }
+        
+        .section {
+            margin-top: 40px;
+            padding: 30px;
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+        
+        .section-title {
+            text-align: center;
+            margin-bottom: 30px;
+            color: #e53935;
+            font-size: 2rem;
+            border-bottom: 2px solid #e53935;
+            padding-bottom: 10px;
+        }
+        
+        .history-content {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 30px;
+            align-items: center;
+        }
+        
+        .history-text {
+            flex: 1;
+            min-width: 300px;
+        }
+        
+        .history-text p {
+            text-indent: 2em;
+            margin-bottom: 15px;
+            line-height: 1.8;
+        }
+        
+        .history-image {
+            flex: 1;
+            min-width: 300px;
+            text-align: center;
+        }
+        
+        .history-image img {
+            max-width: 100%;
+            border-radius: 8px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+        
+        .players-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 30px;
+        }
+        
+        .player-card {
+            background-color: white;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s;
+        }
+        
+        .player-card:hover {
+            transform: translateY(-5px);
+        }
+        
+        .player-img {
+            width: 100%;
+            height: 250px;
+            object-fit: cover;
+        }
+        
+        .player-info {
+            padding: 20px;
+        }
+        
+        .player-name {
+            font-size: 1.5rem;
+            margin-bottom: 10px;
+            color: #e53935;
+        }
+        
+        .player-details {
+            color: #666;
+            margin-bottom: 15px;
+        }
+        
+        .player-stats {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 15px;
+        }
+        
+        .stat {
+            text-align: center;
+        }
+        
+        .stat-value {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #e53935;
+        }
+        
+        .stat-label {
+            font-size: 0.8rem;
+            color: #666;
+        }
+        
+        .achievements-section {
+            margin-top: 40px;
+        }
+        
+        .achievement-card {
+            background-color: #f9f9f9;
+            border-radius: 8px;
+            padding: 25px;
+            margin-bottom: 25px;
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.1);
+            border-left: 5px solid #e53935;
+        }
+        
+        .achievement-title {
+            font-size: 1.4rem;
+            margin-bottom: 15px;
+            color: #e53935;
+        }
+        
+        .achievement-content {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+            align-items: center;
+        }
+        
+        .achievement-text {
+            flex: 2;
+            min-width: 300px;
+        }
+        
+        .achievement-image {
+            flex: 1;
+            min-width: 200px;
+            text-align: center;
+        }
+        
+        .achievement-image img {
+            max-width: 100%;
+            border-radius: 8px;
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.2);
+        }
+        
+        .forum-container {
+            margin-top: 20px;
+        }
+        
+        .forum-post {
+            background-color: #f9f9f9;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.1);
+        }
+        
+        .post-header {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 10px;
+            border-bottom: 1px solid #eee;
+            padding-bottom: 10px;
+        }
+        
+        .post-author {
+            font-weight: bold;
+            color: #e53935;
+        }
+        
+        .post-date {
+            color: #666;
+            font-size: 0.9rem;
+        }
+        
+        .post-content {
+            margin-bottom: 15px;
+        }
+        
+        .post-actions {
+            display: flex;
+            gap: 15px;
+        }
+        
+        .post-action {
+            color: #666;
+            cursor: pointer;
+            transition: color 0.3s;
+        }
+        
+        .post-action:hover {
+            color: #e53935;
+        }
+        
+        .new-post {
+            margin-top: 30px;
+            background-color: #f9f9f9;
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.1);
+        }
+        
+        .new-post textarea {
+            width: 100%;
+            padding: 15px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 16px;
+            min-height: 120px;
+            margin-bottom: 15px;
+        }
+        
+        footer {
+            background-color: rgba(51, 51, 51, 0.9);
+            color: white;
+            text-align: center;
+            padding: 20px 0;
+            margin-top: 50px;
+        }
+        
+        .hidden {
+            display: none;
+        }
+        
+        @media (max-width: 768px) {
+            nav ul {
+                flex-direction: column;
+                align-items: center;
+            }
+            
+            nav ul li {
+                margin: 5px 0;
+            }
+            
+            .players-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .history-content, .achievement-content {
+                flex-direction: column;
+            }
+            
+            .logo {
+                font-size: 2rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="overlay">
+        <header>
+            <div class="container header-content">
+                <div class="logo">银球耀世，乒出未来</div>
+                <p class="subtitle">探索世界顶级乒乓球运动员的精彩故事</p>
+            </div>
+        </header>
+        
+        <nav>
+            <div class="container">
+                <ul>
+                    <li><a href="#" class="nav-link" data-target="home">首页</a></li>
+                    <li><a href="#" class="nav-link" data-target="players">球星资料</a></li>
+                    <li><a href="#" class="nav-link" data-target="achievements">奖杯背后</a></li>
+                    <li><a href="#" class="nav-link" data-target="forum">网友论坛</a></li>
+                    <li><a href="#" class="nav-link" data-target="login">退出登录</a></li>
+                </ul>
+            </div>
+        </nav>
+        
+        <div class="container">
+            <!-- 登录/注册区域 -->
+            <div id="auth-section" class="auth-container">
+                <div class="auth-form">
+                    <h2 id="auth-title">用户登录</h2>
+                    <form id="login-form">
+                        <div class="form-group">
+                            <label for="login-username">用户名</label>
+                            <input type="text" id="login-username" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="login-password">密码</label>
+                            <input type="password" id="login-password" required>
+                        </div>
+                        <button type="submit" class="btn">登录</button>
+                    </form>
+                    
+                    <form id="register-form" class="hidden">
+                        <div class="form-group">
+                            <label for="register-username">用户名</label>
+                            <input type="text" id="register-username" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="register-email">电子邮箱</label>
+                            <input type="email" id="register-email" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="register-password">密码</label>
+                            <input type="password" id="register-password" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="register-confirm">确认密码</label>
+                            <input type="password" id="register-confirm" required>
+                        </div>
+                        <button type="submit" class="btn">注册</button>
+                    </form>
+                    
+                    <div class="toggle-auth">
+                        <p id="toggle-text">还没有账号？<a href="#" id="toggle-link">立即注册</a></p>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- 欢迎区域 -->
+            <div id="welcome-section" class="hidden">
+                <div style="text-align: center; padding: 40px 0;">
+                    <h2 style="color: #e53935; margin-bottom: 20px;" id="welcome-message">欢迎来到乒乓球球星资料库！</h2>
+                    <p style="font-size: 1.2rem; max-width: 800px; margin: 0 auto;">在这里您可以了解世界顶级乒乓球运动员的详细信息，包括他们的职业生涯、成就和比赛风格。</p>
+                </div>
+            </div>
+            
+            <!-- 国球历史区域 -->
+            <div id="history-section" class="section hidden">
+                <h2 class="section-title">中国国球历史</h2>
+                <div class="history-content">
+                    <div class="history-text">
+                        <p>乒乓球起源于19世纪末的英国，最初是作为餐后娱乐活动。20世纪初，乒乓球传入中国，并迅速在全国范围内流行起来。</p>
+                        <p>1959年，容国团在第25届世界乒乓球锦标赛上夺得男子单打冠军，这是新中国获得的第一个世界冠军，从此乒乓球被尊为中国的"国球"。</p>
+                        <p>1971年，中美"乒乓外交"打破了中美两国长达20多年的外交僵局，为两国关系正常化创造了条件，被誉为"小球转动大球"。</p>
+                        <p>自1988年乒乓球成为奥运会正式比赛项目以来，中国乒乓球队共获得了32枚奥运金牌中的28枚，展现了绝对的统治力。</p>
+                        <p>中国乒乓球队培养出了一代又一代的世界冠军，从庄则栋、邱钟惠到刘国梁、孔令辉，再到马龙、张继科、丁宁、刘诗雯，以及现在的樊振东、孙颖莎等新生代球员。</p>
+                    </div>
+                    <div class="history-image">
+                        <img src="file:///D:/jisuanji/history.jpg" alt="中国乒乓球历史">
+                    </div>
+                </div>
+            </div>
+            
+            <!-- 球星资料区域 -->
+            <div id="players-section" class="section hidden">
+                <h2 class="section-title">球星资料</h2>
+                <div class="players-grid">
+                    <!-- 孙颖莎 -->
+                    <div class="player-card">
+                        <img src="file:///D:/jisuanji/shasha.jpg" alt="孙颖莎" class="player-img">
+                        <div class="player-info">
+                            <h3 class="player-name">孙颖莎</h3>
+                            <div class="player-details">
+                                <p><strong>国籍：</strong>中国</p>
+                                <p><strong>出生日期：</strong>2000年11月4日</p>
+                                <p><strong>持拍手：</strong>右手横拍</p>
+                                <p><strong>打法：</strong>快攻结合弧圈</p>
+                            </div>
+                            <p>孙颖莎是中国女子乒乓球新生代领军人物，以其出色的技术和强大的心理素质著称，被誉为"小魔王"。</p>
+                            <div class="player-stats">
+                                <div class="stat">
+                                    <div class="stat-value">3</div>
+                                    <div class="stat-label">世界冠军</div>
+                                </div>
+                                <div class="stat">
+                                    <div class="stat-value">1</div>
+                                    <div class="stat-label">奥运金牌</div>
+                                </div>
+                                <div class="stat">
+                                    <div class="stat-value">2</div>
+                                    <div class="stat-label">世锦赛冠军</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- 樊振东 -->
+                    <div class="player-card">
+                        <img src="file:///D:/jisuanji/fanzhendong.jpg" alt="樊振东" class="player-img">
+                        <div class="player-info">
+                            <h3 class="player-name">樊振东</h3>
+                            <div class="player-details">
+                                <p><strong>国籍：</strong>中国</p>
+                                <p><strong>出生日期：</strong>1997年1月22日</p>
+                                <p><strong>持拍手：</strong>右手横拍</p>
+                                <p><strong>打法：</strong>强力弧圈结合快攻</p>
+                            </div>
+                            <p>樊振东是中国男子乒乓球队的核心主力，以其强大的正手和全面的技术闻名，被誉为"小胖"。</p>
+                            <div class="player-stats">
+                                <div class="stat">
+                                    <div class="stat-value">5</div>
+                                    <div class="stat-label">世界冠军</div>
+                                </div>
+                                <div class="stat">
+                                    <div class="stat-value">1</div>
+                                    <div class="stat-label">奥运金牌</div>
+                                </div>
+                                <div class="stat">
+                                    <div class="stat-value">3</div>
+                                    <div class="stat-label">世锦赛冠军</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- 马龙 -->
+                    <div class="player-card">
+                        <img src="file:///D:/jisuanji/malong.jpg" alt="马龙" class="player-img">
+                        <div class="player-info">
+                            <h3 class="player-name">马龙</h3>
+                            <div class="player-details">
+                                <p><strong>国籍：</strong>中国</p>
+                                <p><strong>出生日期：</strong>1988年10月20日</p>
+                                <p><strong>持拍手：</strong>右手横拍</p>
+                                <p><strong>打法：</strong>全面型，技术无短板</p>
+                            </div>
+                            <p>马龙是乒乓球历史上最伟大的男子选手之一，实现了双圈大满贯，被誉为"龙队"。</p>
+                            <div class="player-stats">
+                                <div class="stat">
+                                    <div class="stat-value">26</div>
+                                    <div class="stat-label">世界冠军</div>
+                                </div>
+                                <div class="stat">
+                                    <div class="stat-value">5</div>
+                                    <div class="stat-label">奥运金牌</div>
+                                </div>
+                                <div class="stat">
+                                    <div class="stat-value">3</div>
+                                    <div class="stat-label">世锦赛冠军</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- 陈梦 -->
+                    <div class="player-card">
+                        <img src="file:///D:/jisuanji/chenmeng.jpg" alt="陈梦" class="player-img">
+                        <div class="player-info">
+                            <h3 class="player-name">陈梦</h3>
+                            <div class="player-details">
+                                <p><strong>国籍：</strong>中国</p>
+                                <p><strong>出生日期：</strong>1994年1月15日</p>
+                                <p><strong>持拍手：</strong>右手横拍</p>
+                                <p><strong>打法：</strong>全面型，正手强势</p>
+                            </div>
+                            <p>陈梦是中国女子乒乓球队的核心主力，以其稳定的技术和强大的心理素质著称，是2020年东京奥运会女单冠军。</p>
+                            <div class="player-stats">
+                                <div class="stat">
+                                    <div class="stat-value">4</div>
+                                    <div class="stat-label">世界冠军</div>
+                                </div>
+                                <div class="stat">
+                                    <div class="stat-value">1</div>
+                                    <div class="stat-label">奥运金牌</div>
+                                </div>
+                                <div class="stat">
+                                    <div class="stat-value">2</div>
+                                    <div class="stat-label">世锦赛冠军</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- 王楚钦 -->
+                    <div class="player-card">
+                        <img src="file:///D:/jisuanji/wangchuqin.jpg" alt="王楚钦" class="player-img">
+                        <div class="player-info">
+                            <h3 class="player-name">王楚钦</h3>
+                            <div class="player-details">
+                                <p><strong>国籍：</strong>中国</p>
+                                <p><strong>出生日期：</strong>2000年5月11日</p>
+                                <p><strong>持拍手：</strong>左手横拍</p>
+                                <p><strong>打法：</strong>快速衔接，反手强势</p>
+                            </div>
+                            <p>王楚钦是中国男子乒乓球队新生代领军人物，以其出色的技术和强大的心理素质著称，被誉为"大头"。</p>
+                            <div class="player-stats">
+                                <div class="stat">
+                                    <div class="stat-value">2</div>
+                                    <div class="stat-label">世界冠军</div>
+                                </div>
+                                <div class="stat">
+                                    <div class="stat-value">1</div>
+                                    <div class="stat-label">奥运金牌</div>
+                                </div>
+                                <div class="stat">
+                                    <div class="stat-value">1</div>
+                                    <div class="stat-label">世锦赛冠军</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- 奖杯背后的故事区域 -->
+            <div id="achievements-section" class="section hidden">
+                <h2 class="section-title">奖杯背后的故事</h2>
+                <div class="achievements-section">
+                    <!-- 容国团 -->
+                    <div class="achievement-card">
+                        <h3 class="achievement-title">容国团 - 新中国第一个世界冠军</h3>
+                        <div class="achievement-content">
+                            <div class="achievement-text">
+                                <p>1959年，在第25届世界乒乓球锦标赛上，容国团夺得男子单打冠军，这是新中国获得的第一个世界冠军。当时中国正处于困难时期，这个冠军极大地鼓舞了全国人民。</p>
+                                <p>容国团喊出的"人生能有几回搏"成为激励一代代运动员的座右铭。他的胜利不仅是个人的荣耀，更是新中国体育事业的里程碑，标志着中国乒乓球开始走向世界舞台。</p>
+                                <p>容国团的成功背后是无数个日夜的刻苦训练和对技术的精益求精。他的胜利为中国乒乓球的发展奠定了坚实基础，开启了"国球"的辉煌历程。</p>
+                            </div>
+                            <div class="achievement-image">
+                                <img src="file:///D:/jisuanji/rongguotuan.jpg" alt="容国团">
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- 中美乒乓外交 -->
+                    <div class="achievement-card">
+                        <h3 class="achievement-title">中美乒乓外交 - 小球转动大球</h3>
+                        <div class="achievement-content">
+                            <div class="achievement-text">
+                                <p>1971年，中国乒乓球队邀请美国乒乓球队访华，打开了中美两国人民友好往来的大门，为后来尼克松访华和中美建交奠定了基础。</p>
+                                <p>这一事件被称为"乒乓外交"，是国际关系史上的经典案例，展现了体育超越政治的力量。乒乓球这个小小的球体，成为了连接两个大国的桥梁。</p>
+                                <p>这次外交突破的背后，是两国运动员的友谊和相互尊重，以及两国领导人的远见卓识。它不仅改变了国际政治格局，也让世界看到了中国开放的态度。</p>
+                            </div>
+                            <div class="achievement-image">
+                                <img src="file:///D:/jisuanji/zhongmeipingpongwaijiao.jpg" alt="中美乒乓外交">
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- 王楚钦 -->
+                    <div class="achievement-card">
+                        <h3 class="achievement-title">王楚钦 - 新生代领军人物的崛起</h3>
+                        <div class="achievement-content">
+                            <div class="achievement-text">
+                                <p>王楚钦作为中国男子乒乓球队新生代的领军人物，以其出色的技术和强大的心理素质著称。他的成功并非一帆风顺，经历了多次失败和挫折。</p>
+                                <p>在2023年德班世乒赛上，王楚钦夺得男单冠军，这是他职业生涯的重要突破。比赛中他展现了出色的技术和强大的心理素质，特别是在关键时刻的稳定发挥。</p>
+                                <p>王楚钦的成功背后是无数次的刻苦训练和对技术的精益求精。他的崛起标志着中国乒乓球新生代球员的成熟，为中国乒乓球的未来发展奠定了坚实基础。</p>
+                            </div>
+                            <div class="achievement-image">
+                                <img src="file:///D:/jisuanji/wangchuqin1.jpg" alt="王楚钦">
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- 孙颖莎 -->
+                    <div class="achievement-card">
+                        <h3 class="achievement-title">孙颖莎 - 小魔王的成长之路</h3>
+                        <div class="achievement-content">
+                            <div class="achievement-text">
+                                <p>孙颖莎作为中国女子乒乓球新生代领军人物，以其出色的技术和强大的心理素质著称，被誉为"小魔王"。她的成长之路充满了挑战和突破。</p>
+                                <p>在2021年休斯顿世乒赛上，孙颖莎夺得女单冠军，这是她职业生涯的重要里程碑。比赛中她展现了全面的技术和强大的心理素质，特别是在关键时刻的稳定发挥。</p>
+                                <p>孙颖莎的成功背后是无数次的刻苦训练和对技术的精益求精。她的崛起标志着中国女子乒乓球新生代球员的成熟，为中国乒乓球的未来发展奠定了坚实基础。</p>
+                            </div>
+                            <div class="achievement-image">
+                                <img src="file:///D:/jisuanji/shasha1.jpg" alt="孙颖莎">
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- 樊振东 -->
+                    <div class="achievement-card">
+                        <h3 class="achievement-title">樊振东 - 从小胖到世界第一的蜕变</h3>
+                        <div class="achievement-content">
+                            <div class="achievement-text">
+                                <p>樊振东作为中国男子乒乓球队的核心主力，以其强大的正手和全面的技术闻名。从"小胖"到世界第一，他的成长之路充满了艰辛和突破。</p>
+                                <p>在2021年休斯顿世乒赛上，樊振东夺得男单冠军，这是他职业生涯的重要突破。比赛中他展现了强大的正手和全面的技术，特别是在关键时刻的稳定发挥。</p>
+                                <p>樊振东的成功背后是无数次的刻苦训练和对技术的精益求精。他的崛起标志着中国男子乒乓球新生代球员的成熟，为中国乒乓球的未来发展奠定了坚实基础。</p>
+                            </div>
+                            <div class="achievement-image">
+                                <img src="file:///D:/jisuanji/fanzhendong1.jpg" alt="樊振东">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- 网友论坛区域 -->
+            <div id="forum-section" class="section hidden">
+                <h2 class="section-title">网友论坛</h2>
+                <div class="forum-container" id="forum-posts-container">
+                    <!-- 论坛帖子将通过JavaScript动态加载 -->
+                </div>
+                
+                <div class="new-post" id="new-post-form">
+                    <h3>发表新帖子</h3>
+                    <textarea id="new-post-content" placeholder="在这里写下您想讨论的内容..."></textarea>
+                    <button class="btn" id="submit-post">发表</button>
+                </div>
+            </div>
+        </div>
+        
+        <footer>
+            <div class="container">
+                <p>© 2023 银球耀世，乒出未来 | 探索乒乓球的魅力</p>
+            </div>
+        </footer>
+    </div>
+
+    <script>
+        // 页面元素
+        const authSection = document.getElementById('auth-section');
+        const welcomeSection = document.getElementById('welcome-section');
+        const historySection = document.getElementById('history-section');
+        const playersSection = document.getElementById('players-section');
+        const achievementsSection = document.getElementById('achievements-section');
+        const forumSection = document.getElementById('forum-section');
+        const loginForm = document.getElementById('login-form');
+        const registerForm = document.getElementById('register-form');
+        const authTitle = document.getElementById('auth-title');
+        const toggleText = document.getElementById('toggle-text');
+        const welcomeMessage = document.getElementById('welcome-message');
+        const newPostContent = document.getElementById('new-post-content');
+        const submitPost = document.getElementById('submit-post');
+        const forumPostsContainer = document.getElementById('forum-posts-container');
+        const newPostForm = document.getElementById('new-post-form');
+        
+        // 论坛数据管理
+        let forumPosts = [];
+        
+        // 显示登录表单
+        function showLoginForm() {
+            loginForm.classList.remove('hidden');
+            registerForm.classList.add('hidden');
+            authTitle.textContent = '用户登录';
+            toggleText.innerHTML = '还没有账号？<a href="#" id="toggle-link">立即注册</a>';
+        }
+        
+        // 显示注册表单
+        function showRegisterForm() {
+            loginForm.classList.add('hidden');
+            registerForm.classList.remove('hidden');
+            authTitle.textContent = '用户注册';
+            toggleText.innerHTML = '已有账号？<a href="#" id="toggle-link">立即登录</a>';
+        }
+        
+        // 使用事件委托处理切换登录/注册表单
+        document.addEventListener('click', function(e) {
+            // 处理登录/注册切换
+            if (e.target && e.target.id === 'toggle-link') {
+                e.preventDefault();
+                if (loginForm.classList.contains('hidden')) {
+                    showLoginForm();
+                } else {
+                    showRegisterForm();
+                }
+            }
+            
+            // 处理导航点击
+            if (e.target && e.target.classList.contains('nav-link')) {
+                e.preventDefault();
+                const target = e.target.getAttribute('data-target');
+                
+                // 如果未登录，强制显示登录页面
+                if (localStorage.getItem('isLoggedIn') !== 'true' && target !== 'login') {
+                    showSection('login');
+                    return;
+                }
+                
+                // 如果是退出登录
+                if (target === 'login' && localStorage.getItem('isLoggedIn') === 'true') {
+                    localStorage.removeItem('isLoggedIn');
+                    localStorage.removeItem('username');
+                    showSection('login');
+                    return;
+                }
+                
+                showSection(target);
+                
+                // 如果是论坛页面，加载帖子
+                if (target === 'forum') {
+                    loadForumPosts();
+                }
+            }
+            
+            // 处理点赞按钮点击
+            if (e.target && e.target.classList.contains('like-btn')) {
+                const postId = parseInt(e.target.getAttribute('data-id'));
+                const post = forumPosts.find(p => p.id === postId);
+                if (post) {
+                    post.likes++;
+                    saveForumPosts();
+                    e.target.textContent = `点赞(${post.likes})`;
+                }
+            }
+        });
+        
+        // 登录表单提交
+        loginForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            const username = document.getElementById('login-username').value;
+            const password = document.getElementById('login-password').value;
+            
+            // 简单验证
+            if (username && password) {
+                // 模拟登录成功
+                localStorage.setItem('isLoggedIn', 'true');
+                localStorage.setItem('username', username);
+                
+                // 显示欢迎信息和球员资料
+                authSection.classList.add('hidden');
+                welcomeSection.classList.remove('hidden');
+                historySection.classList.remove('hidden');
+                
+                // 更新欢迎信息
+                welcomeMessage.textContent = `欢迎，${username}！`;
+                
+                // 更新导航状态
+                updateNavigation();
+            } else {
+                alert('请输入用户名和密码');
+            }
+        });
+        
+        // 注册表单提交
+        registerForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            const username = document.getElementById('register-username').value;
+            const email = document.getElementById('register-email').value;
+            const password = document.getElementById('register-password').value;
+            const confirm = document.getElementById('register-confirm').value;
+            
+            // 简单验证
+            if (username && email && password && confirm) {
+                if (password !== confirm) {
+                    alert('两次输入的密码不一致');
+                    return;
+                }
+                
+                // 模拟注册成功并自动登录
+                localStorage.setItem('isLoggedIn', 'true');
+                localStorage.setItem('username', username);
+                
+                // 显示欢迎信息和球员资料
+                authSection.classList.add('hidden');
+                welcomeSection.classList.remove('hidden');
+                historySection.classList.remove('hidden');
+                
+                // 更新欢迎信息
+                welcomeMessage.textContent = `欢迎，${username}！`;
+                
+                // 更新导航状态
+                updateNavigation();
+            } else {
+                alert('请填写所有字段');
+            }
+        });
+        
+        // 显示指定部分
+        function showSection(section) {
+            // 隐藏所有部分
+            authSection.classList.add('hidden');
+            welcomeSection.classList.add('hidden');
+            historySection.classList.add('hidden');
+            playersSection.classList.add('hidden');
+            achievementsSection.classList.add('hidden');
+            forumSection.classList.add('hidden');
+            
+            // 显示指定部分
+            if (section === 'login') {
+                authSection.classList.remove('hidden');
+                showLoginForm();
+            } else if (section === 'home') {
+                welcomeSection.classList.remove('hidden');
+                historySection.classList.remove('hidden');
+            } else if (section === 'players') {
+                playersSection.classList.remove('hidden');
+            } else if (section === 'achievements') {
+                achievementsSection.classList.remove('hidden');
+            } else if (section === 'forum') {
+                forumSection.classList.remove('hidden');
+                loadForumPosts();
+            }
+        }
+        
+        // 更新导航状态
+        function updateNavigation() {
+            const isLoggedIn = localStorage.getItem('isLoggedIn') === 'true';
+            
+            if (isLoggedIn) {
+                // 更新导航链接文本
+                const loginLink = document.querySelector('.nav-link[data-target="login"]');
+                if (loginLink) {
+                    loginLink.textContent = '退出登录';
+                }
+            }
+        }
+        
+        // 保存论坛帖子到本地存储
+        function saveForumPosts() {
+            try {
+                localStorage.setItem('forumPosts', JSON.stringify(forumPosts));
+            } catch (e) {
+                console.error('保存论坛帖子失败:', e);
+            }
+        }
+        
+        // 从本地存储加载论坛帖子
+        function loadForumPosts() {
+            // 清空当前帖子容器
+            forumPostsContainer.innerHTML = '';
+            
+            // 从本地存储加载帖子
+            try {
+                const savedPosts = localStorage.getItem('forumPosts');
+                if (savedPosts) {
+                    forumPosts = JSON.parse(savedPosts);
+                } else {
+                    // 如果没有保存的帖子，使用默认帖子
+                    forumPosts = [
+                        {
+                            id: 1,
+                            author: '乒乓爱好者',
+                            date: '2023-10-15',
+                            content: '大家觉得今年的世锦赛中国队能包揽全部金牌吗？我觉得男单竞争会很激烈，特别是樊振东和张本智和的对决。',
+                            likes: 25,
+                            replies: 8
+                        },
+                        {
+                            id: 2,
+                            author: '技术分析员',
+                            date: '2023-10-12',
+                            content: '孙颖莎的反手技术真的是越来越成熟了，她的护扣和快撕在女子选手中几乎是独一档的存在。',
+                            likes: 18,
+                            replies: 5
+                        },
+                        {
+                            id: 3,
+                            author: '历史迷',
+                            date: '2023-10-10',
+                            content: '有人记得2008年北京奥运会男单决赛吗？马琳对阵王皓，那场比赛真的太经典了！',
+                            likes: 32,
+                            replies: 12
+                        }
+                    ];
+                    saveForumPosts();
+                }
+            } catch (e) {
+                console.error('加载论坛帖子失败:', e);
+                forumPosts = [];
+            }
+            
+            // 渲染帖子
+            forumPosts.forEach(post => {
+                const postElement = document.createElement('div');
+                postElement.className = 'forum-post';
+                postElement.setAttribute('data-id', post.id);
+                
+                postElement.innerHTML = `
+                    <div class="post-header">
+                        <div class="post-author">${post.author}</div>
+                        <div class="post-date">${post.date}</div>
+                    </div>
+                    <div class="post-content">
+                        <p>${post.content}</p>
+                    </div>
+                    <div class="post-actions">
+                        <div class="post-action like-btn" data-id="${post.id}">点赞(${post.likes})</div>
+                        <div class="post-action">回复(${post.replies})</div>
+                    </div>
+                `;
+                
+                forumPostsContainer.appendChild(postElement);
+            });
+            
+            // 添加新帖子表单到容器
+            forumPostsContainer.appendChild(newPostForm);
+        }
+        
+        // 发表新帖子
+        submitPost.addEventListener('click', function() {
+            const content = newPostContent.value.trim();
+            if (!content) {
+                alert('请输入帖子内容');
+                return;
+            }
+            
+            const username = localStorage.getItem('username');
+            if (!username) {
+                alert('请先登录');
+                return;
+            }
+            
+            const currentDate = new Date();
+            const formattedDate = `${currentDate.getFullYear()}-${(currentDate.getMonth()+1).toString().padStart(2, '0')}-${currentDate.getDate().toString().padStart(2, '0')}`;
+            
+            // 创建新帖子
+            const newPost = {
+                id: forumPosts.length > 0 ? Math.max(...forumPosts.map(p => p.id)) + 1 : 1,
+                author: username,
+                date: formattedDate,
+                content: content,
+                likes: 0,
+                replies: 0
+            };
+            
+            // 添加到帖子列表（新帖子在最前面）
+            forumPosts.unshift(newPost);
+            
+            // 保存到本地存储
+            saveForumPosts();
+            
+            // 重新加载论坛帖子
+            loadForumPosts();
+            
+            // 清空输入框
+            newPostContent.value = '';
+            
+            // 提示用户
+            alert('帖子发表成功！');
+        });
+        
+        // 检查登录状态
+        function checkLoginStatus() {
+            const isLoggedIn = localStorage.getItem('isLoggedIn') === 'true';
+            
+            if (isLoggedIn) {
+                authSection.classList.add('hidden');
+                welcomeSection.classList.remove('hidden');
+                historySection.classList.remove('hidden');
+                updateNavigation();
+            } else {
+                authSection.classList.remove('hidden');
+                welcomeSection.classList.add('hidden');
+                historySection.classList.add('hidden');
+                playersSection.classList.add('hidden');
+                achievementsSection.classList.add('hidden');
+                forumSection.classList.add('hidden');
+            }
+        }
+        
+        // 页面加载时检查登录状态并加载论坛帖子
+        document.addEventListener('DOMContentLoaded', function() {
+            checkLoginStatus();
+            // 初始化显示登录表单
+            showLoginForm();
+        });
+    </script>
+</body>
+</html>
