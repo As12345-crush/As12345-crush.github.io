@@ -1,0 +1,324 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>评论管理后台</title>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { 
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; 
+            background: #f5f5f5;
+            padding: 20px;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+        .header {
+            background: linear-gradient(90deg, #e53935, #c62828);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+        .header h1 { font-size: 2.5rem; margin-bottom: 10px; }
+        
+        .controls {
+            padding: 20px;
+            background: #f8f9fa;
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+        .search-box {
+            flex: 1;
+            min-width: 300px;
+            padding: 12px;
+            border: 2px solid #ddd;
+            border-radius: 6px;
+            font-size: 16px;
+        }
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+        .btn-primary { background: #e53935; color: white; }
+        .btn-primary:hover { background: #c62828; }
+        .btn-danger { background: #dc3545; color: white; }
+        .btn-danger:hover { background: #c82333; }
+        .btn-success { background: #28a745; color: white; }
+        .btn-success:hover { background: #218838; }
+        
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            padding: 20px;
+        }
+        .stat-card {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 8px;
+            text-align: center;
+            border-left: 5px solid #e53935;
+        }
+        .stat-number {
+            font-size: 2.5rem;
+            font-weight: bold;
+            color: #e53935;
+            margin: 10px 0;
+        }
+        
+        .comments-list {
+            padding: 20px;
+        }
+        .comment-item {
+            background: white;
+            border: 1px solid #e9ecef;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 15px;
+            transition: all 0.3s;
+        }
+        .comment-item:hover {
+            box-shadow: 0 3px 10px rgba(0,0,0,0.1);
+        }
+        .comment-header {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 10px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid #f1f5f9;
+        }
+        .comment-name {
+            font-weight: bold;
+            color: #e53935;
+            font-size: 1.1rem;
+        }
+        .comment-time {
+            color: #666;
+            font-size: 0.9rem;
+        }
+        .comment-content {
+            color: #333;
+            line-height: 1.6;
+            margin: 10px 0;
+            white-space: pre-wrap;
+        }
+        .comment-actions {
+            display: flex;
+            gap: 10px;
+            justify-content: flex-end;
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>📊 评论管理后台</h1>
+            <p>管理网站的所有用户评论</p>
+        </div>
+        
+        <div class="stats">
+            <div class="stat-card">
+                <div>总评论数</div>
+                <div class="stat-number" id="total-count">0</div>
+            </div>
+            <div class="stat-card">
+                <div>今日新增</div>
+                <div class="stat-number" id="today-count">0</div>
+            </div>
+            <div class="stat-card">
+                <div>操作</div>
+                <button onclick="exportComments()" class="btn btn-success" style="margin-top: 10px;">
+                    导出数据
+                </button>
+            </div>
+        </div>
+        
+        <div class="controls">
+            <input type="text" id="search" class="search-box" placeholder="搜索评论内容或用户名..." 
+                   oninput="filterComments()">
+            <button onclick="loadAllComments()" class="btn btn-primary">🔄 刷新</button>
+        </div>
+        
+        <div class="comments-list" id="comments-container">
+            <p style="text-align: center; padding: 40px; color: #666;">正在加载评论...</p>
+        </div>
+    </div>
+    
+    <script>
+        // Supabase 配置
+        const supabaseUrl = 'https://egxjewmpiypeqcockm.supabase.co';
+        const supabaseKey = 'sb_publishable_klyt4T_8vCSBGHbJ66YfCg_pqVHYMLy';
+        const supabase = window.supabase.createClient(supabaseUrl, supabaseKey);
+        
+        let allComments = [];
+        
+        // 加载所有评论
+        async function loadAllComments() {
+            try {
+                const container = document.getElementById('comments-container');
+                container.innerHTML = '<p style="text-align: center; padding: 20px;">正在加载...</p>';
+                
+                const { data: comments, error } = await supabase
+                    .from('comments')
+                    .select('*')
+                    .order('created_at', { ascending: false });
+                
+                if (error) throw error;
+                
+                allComments = comments;
+                displayComments(comments);
+                updateStats();
+            } catch (error) {
+                console.error('加载失败:', error);
+                const container = document.getElementById('comments-container');
+                container.innerHTML = '<p style="color: red; text-align: center; padding: 40px;">加载失败: ' + error.message + '</p>';
+            }
+        }
+        
+        // 显示评论
+        function displayComments(comments) {
+            const container = document.getElementById('comments-container');
+            
+            if (!comments || comments.length === 0) {
+                container.innerHTML = '<p style="text-align: center; padding: 40px; color: #666;">暂无评论</p>';
+                return;
+            }
+            
+            container.innerHTML = '';
+            
+            comments.forEach(comment => {
+                const div = document.createElement('div');
+                div.className = 'comment-item';
+                
+                div.innerHTML = `
+                    <div class="comment-header">
+                        <div style="display: flex; align-items: center; gap: 10px;">
+                            <span class="comment-name">${escapeHtml(comment.name)}</span>
+                            <span style="color: #666; font-size: 0.9rem;">ID: ${comment.id}</span>
+                        </div>
+                        <span class="comment-time">${new Date(comment.created_at).toLocaleString('zh-CN')}</span>
+                    </div>
+                    <div class="comment-content">${escapeHtml(comment.content)}</div>
+                    <div class="comment-actions">
+                        <button onclick="deleteComment(${comment.id})" class="btn btn-danger">删除</button>
+                    </div>
+                `;
+                
+                container.appendChild(div);
+            });
+        }
+        
+        // 删除评论
+        async function deleteComment(id) {
+            if (!confirm('确定要删除这条评论吗？')) return;
+            
+            try {
+                const { error } = await supabase
+                    .from('comments')
+                    .delete()
+                    .eq('id', id);
+                
+                if (error) throw error;
+                
+                alert('删除成功');
+                loadAllComments();
+            } catch (error) {
+                console.error('删除失败:', error);
+                alert('删除失败: ' + error.message);
+            }
+        }
+        
+        // 搜索过滤
+        function filterComments() {
+            const searchText = document.getElementById('search').value.toLowerCase().trim();
+            
+            if (!searchText) {
+                displayComments(allComments);
+                return;
+            }
+            
+            const filtered = allComments.filter(comment => 
+                comment.content.toLowerCase().includes(searchText) ||
+                comment.name.toLowerCase().includes(searchText)
+            );
+            
+            displayComments(filtered);
+        }
+        
+        // 导出数据
+        async function exportComments() {
+            try {
+                const { data: comments, error } = await supabase
+                    .from('comments')
+                    .select('*')
+                    .order('created_at', { ascending: true });
+                
+                if (error) throw error;
+                
+                // 转换为CSV
+                const headers = ['ID', '姓名', '内容', '时间'];
+                const csvRows = [
+                    headers.join(','),
+                    ...comments.map(comment => [
+                        comment.id,
+                        `"${comment.name.replace(/"/g, '""')}"`,
+                        `"${comment.content.replace(/"/g, '""')}"`,
+                        `"${new Date(comment.created_at).toLocaleString('zh-CN')}"`
+                    ].join(','))
+                ];
+                
+                const csvString = csvRows.join('\n');
+                const blob = new Blob(['\uFEFF' + csvString], { 
+                    type: 'text/csv;charset=utf-8;' 
+                });
+                
+                const link = document.createElement('a');
+                link.href = URL.createObjectURL(blob);
+                link.download = `评论数据_${new Date().toISOString().split('T')[0]}.csv`;
+                link.click();
+                
+                alert(`已导出 ${comments.length} 条评论`);
+            } catch (error) {
+                console.error('导出失败:', error);
+                alert('导出失败: ' + error.message);
+            }
+        }
+        
+        // 更新统计
+        function updateStats() {
+            document.getElementById('total-count').textContent = allComments.length;
+            
+            // 计算今日新增
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
+            const todayCount = allComments.filter(comment => 
+                new Date(comment.created_at) >= today
+            ).length;
+            document.getElementById('today-count').textContent = todayCount;
+        }
+        
+        // 防止XSS
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+        
+        // 页面加载
+        document.addEventListener('DOMContentLoaded', loadAllComments);
+    </script>
+</body>
+</html>
