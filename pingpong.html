@@ -752,13 +752,13 @@
             <div id="forum-section" class="section hidden">
                 <h2 class="section-title">网友论坛</h2>
                 <div class="forum-container" id="forum-posts-container">
-                    <!-- 论坛帖子将通过JavaScript动态加载 -->
+                    <!-- 评论会实时加载到这里 -->
                 </div>
                 
                 <div class="new-post" id="new-post-form">
-                    <h3>发表新帖子</h3>
-                    <textarea id="new-post-content" placeholder="在这里写下您想讨论的内容..."></textarea>
-                    <button class="btn" id="submit-post">发表</button>
+                    <h3>发表评论</h3>
+                    <textarea id="new-post-content" placeholder="在这里写下您想讨论的内容..." required></textarea>
+                    <button class="btn" id="submit-post">发表评论</button>
                 </div>
             </div>
         </div>
@@ -770,13 +770,18 @@
         </footer>
     </div>
 
+    <!-- 引入Supabase客户端库 -->
+    <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+
     <script>
-        // ==================== 配置 ====================
-        // 修改这里：你的服务器IP（只改了这里）
-        const SERVER_IP = '10.41.51.144';  // 修改为你的服务器IP
-        const API_BASE = `http://${SERVER_IP}:5000`;
-        
-        // 页面元素（完全不变）
+        // ==================== Supabase配置 ====================
+        // ⚠️ 请替换下面的值为你自己的Supabase项目信息
+        const supabaseUrl = 'https://evlbhdfjycjkoamuwmzx.supabase.co'; // 你的Project URL
+        const supabaseAnonKey = 'eyJhbGc101JIUZI1N1IsInR5ccT6IKpXVCJ9...'; // 你的anon public key
+        const supabase = window.supabase.createClient(supabaseUrl, supabaseAnonKey);
+        const forumTopicId = 'pingpong_forum'; // 论坛主题标识
+
+        // ==================== 页面元素 ====================
         const authSection = document.getElementById('auth-section');
         const welcomeSection = document.getElementById('welcome-section');
         const historySection = document.getElementById('history-section');
@@ -792,11 +797,8 @@
         const submitPost = document.getElementById('submit-post');
         const forumPostsContainer = document.getElementById('forum-posts-container');
         const newPostForm = document.getElementById('new-post-form');
-        
-        // 论坛数据管理
-        let forumPosts = [];
-        
-        // ==================== 显示登录/注册表单（完全不变） ====================
+
+        // ==================== 显示登录/注册表单 ====================
         function showLoginForm() {
             loginForm.classList.remove('hidden');
             registerForm.classList.add('hidden');
@@ -810,8 +812,8 @@
             authTitle.textContent = '用户注册';
             toggleText.innerHTML = '已有账号？<a href="#" id="toggle-link">立即登录</a>';
         }
-        
-        // ==================== 事件委托处理（完全不变） ====================
+
+        // ==================== 事件委托处理 ====================
         document.addEventListener('click', function(e) {
             // 处理登录/注册切换
             if (e.target && e.target.id === 'toggle-link') {
@@ -844,20 +846,14 @@
                 
                 showSection(target);
                 
-                // 如果是论坛页面，加载帖子
+                // 如果是论坛页面，加载并实时监听评论
                 if (target === 'forum') {
-                    loadForumPosts();
+                    loadAndSubscribeToComments();
                 }
             }
-            
-            // 处理点赞按钮点击（点赞功能保留）
-            if (e.target && e.target.classList.contains('like-btn')) {
-                const postId = parseInt(e.target.getAttribute('data-id'));
-                likePost(postId);
-            }
         });
-        
-        // ==================== 登录表单提交（完全不变） ====================
+
+        // ==================== 登录表单提交 ====================
         loginForm.addEventListener('submit', function(e) {
             e.preventDefault();
             const username = document.getElementById('login-username').value;
@@ -883,8 +879,8 @@
                 alert('请输入用户名和密码');
             }
         });
-        
-        // ==================== 注册表单提交（完全不变） ====================
+
+        // ==================== 注册表单提交 ====================
         registerForm.addEventListener('submit', function(e) {
             e.preventDefault();
             const username = document.getElementById('register-username').value;
@@ -917,8 +913,8 @@
                 alert('请填写所有字段');
             }
         });
-        
-        // ==================== 显示指定部分（完全不变） ====================
+
+        // ==================== 显示指定部分 ====================
         function showSection(section) {
             // 隐藏所有部分
             authSection.classList.add('hidden');
@@ -941,11 +937,10 @@
                 achievementsSection.classList.remove('hidden');
             } else if (section === 'forum') {
                 forumSection.classList.remove('hidden');
-                loadForumPosts();
             }
         }
-        
-        // ==================== 更新导航状态（完全不变） ====================
+
+        // ==================== 更新导航状态 ====================
         function updateNavigation() {
             const isLoggedIn = localStorage.getItem('isLoggedIn') === 'true';
             
@@ -957,155 +952,169 @@
                 }
             }
         }
+
+        // ==================== Supabase实时评论系统 ====================
         
-        // ==================== 修改1：从后端加载评论（只改了API地址） ====================
-        async function loadForumPosts() {
+        // 加载并实时监听评论
+        function loadAndSubscribeToComments() {
             // 清空当前帖子容器
             forumPostsContainer.innerHTML = '';
             
-            try {
-                // 从后端API获取帖子（修改了API地址）
-                const response = await fetch(`${API_BASE}/api/comments`);
-                
-                if (!response.ok) {
-                    throw new Error('获取评论失败');
-                }
-                
-                const result = await response.json();
-                
-                // 注意：这里假设后端返回的是 {status: 'success', comments: [...]} 格式
-                const comments = result.comments || result;
-                
-                // 渲染帖子
-                comments.forEach(comment => {
-                    const postElement = document.createElement('div');
-                    postElement.className = 'forum-post';
-                    postElement.setAttribute('data-id', comment.id);
-                    
-                    // 格式化日期
-                    let displayDate = '未知日期';
-                    if (comment.created_at) {
-                        try {
-                            const date = new Date(comment.created_at);
-                            displayDate = date.toLocaleDateString('zh-CN');
-                        } catch (e) {
-                            displayDate = comment.created_at.split('T')[0] || '未知日期';
-                        }
+            // 首先获取所有现有评论
+            fetchComments();
+            
+            // 然后建立实时监听
+            supabase
+                .channel('public:comments')
+                .on('postgres_changes',
+                    { 
+                        event: 'INSERT', 
+                        schema: 'public', 
+                        table: 'comments',
+                        filter: `topic_id=eq.${forumTopicId}` // 只监听本论坛的评论
+                    },
+                    (payload) => {
+                        // 当有新的评论插入时，立即添加到页面顶部
+                        prependComment(payload.new);
                     }
-                    
-                    postElement.innerHTML = `
-                        <div class="post-header">
-                            <div class="post-author">${comment.username || comment.author || '匿名用户'}</div>
-                            <div class="post-date">${displayDate}</div>
-                        </div>
-                        <div class="post-content">
-                            <p>${comment.content}</p>
-                        </div>
-                        <div class="post-actions">
-                            <div class="post-action like-btn" data-id="${comment.id}">点赞(${comment.likes || 0})</div>
-                        </div>
-                    `;
-                    
-                    forumPostsContainer.appendChild(postElement);
-                });
-                
-            } catch (error) {
-                console.error('加载论坛帖子失败:', error);
-                // 如果后端不可用，显示错误信息
-                forumPostsContainer.innerHTML = '<p style="color: #666; text-align: center; padding: 20px;">暂时无法加载评论，请稍后再试</p>';
+                )
+                .subscribe();
+        }
+
+        // 获取所有历史评论
+        async function fetchComments() {
+            const { data: comments, error } = await supabase
+                .from('comments')
+                .select('*')
+                .eq('topic_id', forumTopicId)
+                .order('created_at', { ascending: false }); // 按时间倒序，新的在前
+
+            if (error) {
+                console.error('加载评论失败:', error);
+                displayErrorMessage('评论加载失败，请刷新页面重试。');
+            } else {
+                displayComments(comments);
+            }
+        }
+
+        // 在页面上展示评论列表
+        function displayComments(comments) {
+            if (comments.length === 0) {
+                forumPostsContainer.innerHTML = '<p style="color: #666; text-align: center; padding: 20px;">还没有评论，快来第一个发言吧！</p>';
+                forumPostsContainer.appendChild(newPostForm);
+                return;
             }
             
-            // 添加新帖子表单到容器
+            forumPostsContainer.innerHTML = comments.map(comment => formatComment(comment)).join('');
             forumPostsContainer.appendChild(newPostForm);
         }
-        
-        // ==================== 修改2：发布评论到后端（简化了逻辑） ====================
+
+        // 显示错误信息
+        function displayErrorMessage(message) {
+            forumPostsContainer.innerHTML = `<p style="color: #e53935; text-align: center; padding: 20px;">${message}</p>`;
+            forumPostsContainer.appendChild(newPostForm);
+        }
+
+        // 将单条评论格式化为HTML
+        function formatComment(comment) {
+            // 格式化日期
+            let displayDate = '刚刚';
+            if (comment.created_at) {
+                try {
+                    const date = new Date(comment.created_at);
+                    displayDate = date.toLocaleDateString('zh-CN') + ' ' + date.toLocaleTimeString('zh-CN', { hour: '2-digit', minute: '2-digit' });
+                } catch (e) {
+                    displayDate = comment.created_at.split('T')[0] || '未知日期';
+                }
+            }
+            
+            return `
+                <div class="forum-post" data-id="${comment.id}">
+                    <div class="post-header">
+                        <div class="post-author">${comment.user_name || '匿名用户'}</div>
+                        <div class="post-date">${displayDate}</div>
+                    </div>
+                    <div class="post-content">
+                        <p>${comment.content}</p>
+                    </div>
+                </div>
+            `;
+        }
+
+        // 将单条新评论添加到页面顶部
+        function prependComment(comment) {
+            const commentHtml = formatComment(comment);
+            
+            // 如果当前显示"没有评论"的消息，先清除它
+            const firstChild = forumPostsContainer.firstChild;
+            if (firstChild && firstChild.textContent.includes('还没有评论')) {
+                forumPostsContainer.innerHTML = '';
+                forumPostsContainer.appendChild(newPostForm);
+            }
+            
+            // 将新评论插入到表单之前
+            forumPostsContainer.insertAdjacentHTML('afterbegin', commentHtml);
+        }
+
+        // 发表新评论
         async function postNewComment(content) {
             const username = localStorage.getItem('username');
             if (!username) {
-                alert('请先登录');
+                alert('请先登录才能发表评论');
+                return false;
+            }
+            
+            if (!content.trim()) {
+                alert('评论内容不能为空');
                 return false;
             }
             
             try {
-                // 直接发布评论（简化逻辑）
-                const response = await fetch(`${API_BASE}/api/comments`, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({
-                        username: username,
-                        content: content
-                    })
-                });
-                
-                const result = await response.json();
-                
-                if (response.ok && result.status === 'success') {
-                    return true;
-                } else {
-                    throw new Error(result.message || '发布失败');
+                const { error } = await supabase
+                    .from('comments')
+                    .insert([{ 
+                        user_name: username, 
+                        content: content.trim(),
+                        topic_id: forumTopicId 
+                    }]);
+
+                if (error) {
+                    throw error;
                 }
                 
+                return true;
             } catch (error) {
-                console.error('发布评论失败:', error);
-                alert('发布失败: ' + error.message);
+                console.error('发表评论失败:', error);
+                alert('发表评论失败: ' + error.message);
                 return false;
             }
         }
-        
-        // ==================== 点赞功能（保留，但可能暂时不能用） ====================
-        async function likePost(commentId) {
-            const username = localStorage.getItem('username');
-            if (!username) {
-                alert('请先登录才能点赞');
-                return;
-            }
-            
-            try {
-                // 如果后端有点赞接口
-                const response = await fetch(`${API_BASE}/api/comments/${commentId}/like`, {
-                    method: 'POST'
-                });
-                
-                if (response.ok) {
-                    // 重新加载评论以更新点赞数
-                    loadForumPosts();
-                } else {
-                    // 如果后端没有点赞接口，前端模拟点赞
-                    alert('点赞功能暂不可用');
-                }
-            } catch (error) {
-                console.error('点赞失败:', error);
-                alert('点赞失败，请稍后再试');
-            }
-        }
-        
-        // ==================== 发表新帖子（调用了修改后的函数） ====================
+
+        // ==================== 发表新评论事件 ====================
         submitPost.addEventListener('click', async function() {
             const content = newPostContent.value.trim();
             if (!content) {
-                alert('请输入帖子内容');
+                alert('请输入评论内容');
                 return;
             }
             
-            // 使用新函数发布评论
             const success = await postNewComment(content);
             
             if (success) {
                 // 清空输入框
                 newPostContent.value = '';
-                
-                // 重新加载论坛帖子
-                loadForumPosts();
-                
-                // 提示用户
-                alert('帖子发表成功！');
+                // 注意：页面更新由实时监听自动完成，无需额外操作
             }
         });
-        
-        // ==================== 检查登录状态（完全不变） ====================
+
+        // 也支持按Enter键发表评论
+        newPostContent.addEventListener('keydown', function(e) {
+            if (e.key === 'Enter' && e.ctrlKey) {
+                submitPost.click();
+            }
+        });
+
+        // ==================== 检查登录状态 ====================
         function checkLoginStatus() {
             const isLoggedIn = localStorage.getItem('isLoggedIn') === 'true';
             
@@ -1123,11 +1132,10 @@
                 forumSection.classList.add('hidden');
             }
         }
-        
-        // ==================== 页面加载时检查登录状态（完全不变） ====================
+
+        // ==================== 页面加载时初始化 ====================
         document.addEventListener('DOMContentLoaded', function() {
             checkLoginStatus();
-            // 初始化显示登录表单
             showLoginForm();
         });
     </script>
