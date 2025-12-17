@@ -916,6 +916,8 @@
 
         // ==================== 显示指定部分 ====================
         function showSection(section) {
+            console.log('切换到:', section); // 调试用
+            
             // 隐藏所有部分
             authSection.classList.add('hidden');
             welcomeSection.classList.add('hidden');
@@ -929,6 +931,7 @@
                 authSection.classList.remove('hidden');
                 showLoginForm();
             } else if (section === 'home') {
+                // ✅ 关键修复：登录成功后显示这两个部分
                 welcomeSection.classList.remove('hidden');
                 historySection.classList.remove('hidden');
             } else if (section === 'players') {
@@ -943,12 +946,26 @@
         // ==================== 更新导航状态 ====================
         function updateNavigation() {
             const isLoggedIn = localStorage.getItem('isLoggedIn') === 'true';
+            const username = localStorage.getItem('username');
             
-            if (isLoggedIn) {
+            if (isLoggedIn && username) {
                 // 更新导航链接文本
                 const loginLink = document.querySelector('.nav-link[data-target="login"]');
                 if (loginLink) {
                     loginLink.textContent = '退出登录';
+                    loginLink.title = `当前用户: ${username}`;
+                }
+                
+                // 更新欢迎信息（如果可见）
+                if (!welcomeSection.classList.contains('hidden')) {
+                    welcomeMessage.textContent = `欢迎，${username}！`;
+                }
+            } else {
+                // 未登录状态
+                const loginLink = document.querySelector('.nav-link[data-target="login"]');
+                if (loginLink) {
+                    loginLink.textContent = '登录';
+                    loginLink.title = '';
                 }
             }
         }
@@ -1117,19 +1134,22 @@
         // ==================== 检查登录状态 ====================
         function checkLoginStatus() {
             const isLoggedIn = localStorage.getItem('isLoggedIn') === 'true';
+            const username = localStorage.getItem('username');
             
-            if (isLoggedIn) {
+            if (isLoggedIn && username) {
+                // 已登录：显示首页
                 authSection.classList.add('hidden');
-                welcomeSection.classList.remove('hidden');
-                historySection.classList.remove('hidden');
                 updateNavigation();
+                showSection('home');
             } else {
+                // 未登录：显示登录页
                 authSection.classList.remove('hidden');
                 welcomeSection.classList.add('hidden');
                 historySection.classList.add('hidden');
                 playersSection.classList.add('hidden');
                 achievementsSection.classList.add('hidden');
                 forumSection.classList.add('hidden');
+                showLoginForm();
             }
         }
 
