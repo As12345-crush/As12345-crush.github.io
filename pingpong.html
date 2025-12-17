@@ -774,28 +774,23 @@
     <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
 
     <script>
-        // ==================== Supabase配置 ====================
-        // ⚠️ 请替换下面的值为你自己的Supabase项目信息
-       const supabaseUrl = 'https://evlbhdfjycjkoamuwmzx.supabase.co';
-       const supabaseAnonKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImV2bGJoZGZqeWNqa29hbXV3bXp4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjU3NzU2MDEsImV4cCI6MjA4MTM1MTYwMX0.9gGfrOHOSG0tl2vsfynuoH2gzqQGIfouNrUKHzgWOXg'; // 从 Supabase 项目设置获取
-       <script>
     // ==================== Supabase配置 ====================
-    const supabaseUrl = 'https://evlbhdfjycjkoamuwmzx.supabase.co';
-    const supabaseAnonKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImV2bGJoZGZqeWNqa29hbXV3bXp4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjU3NzU2MDEsImV4cCI6MjA4MTM1MTYwMX0.9gGfrOHOSG0tl2vsfynuoH2gzqQGIfouNrUKHzgWOXg';
-    const forumTopicId = 'pingpong_forum';
+        const supabaseUrl = 'https://evlbhdfjycjkoamuwmzx.supabase.co';
+        const supabaseAnonKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImV2bGJoZGZqeWNqa29hbXV3bXp4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjU3NzU2MDEsImV4cCI6MjA4MTM1MTYwMX0.9gGfrOHOSG0tl2vsfynuoH2gzqQGIfouNrUKHzgWOXg';
+        const forumTopicId = 'pingpong_forum';
     
     // ✅ 关键：初始化Supabase客户端
-    let supabase = null; // 先声明为null
+        let supabase = null; // 先声明为null
     
     // 等待页面和Supabase库加载完成
-    document.addEventListener('DOMContentLoaded', function() {
-        console.log('🔄 开始初始化Supabase...');
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('🔄 开始初始化Supabase...');
         
         // 检查Supabase库是否加载
-        if (typeof window.supabase === 'undefined') {
-            console.error('❌ Supabase库未加载！');
-            alert('系统核心库加载失败，请刷新页面');
-            return;
+            if (typeof window.supabase === 'undefined') {
+                console.error('❌ Supabase库未加载！');
+                alert('系统核心库加载失败，请刷新页面');
+                return;
         }
         
         try {
@@ -830,6 +825,7 @@
             console.error('❌ 连接测试异常:', err);
         }
     }
+    
     
     // 其余代码保持不变...
 </script>
@@ -1195,6 +1191,4 @@
     </script>
 </body>
 </html>
-
-
 
