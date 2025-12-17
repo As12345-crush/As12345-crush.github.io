@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>银球耀世，乒出未来</title>
     <style>
-        /* 保持你的原有CSS样式完全不变 */
+        /* 原有CSS样式完全保留 */
         * {
             margin: 0;
             padding: 0;
@@ -774,48 +774,224 @@
     <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
 
     <script>
-        // ==================== Supabase配置 ====================
-        // ⚠️ 请替换下面的值为你自己的Supabase项目信息
-        const supabaseUrl = 'https://evlbhdfjycjkoamuwmzx.supabase.co'; // 你的Project URL
-         const supabaseAnonKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImV2bGJoZGZqeWNqa29hbXV3bXp4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjU3NzU2MDEsImV4cCI6MjA4MTM1MTYwMX0.9gGfrOHOSG0tl2vsfynuoH2gzqQGIfouNrUKHzgWOXg'; // 你的anon public key
+        // ==================== 严格模式，防止常见错误 ====================
+        'use strict';
         
-        const forumTopicId = 'pingpong_forum'; // 论坛主题标识
-
-        // ==================== 页面元素 ====================
-        const authSection = document.getElementById('auth-section');
-        const welcomeSection = document.getElementById('welcome-section');
-        const historySection = document.getElementById('history-section');
-        const playersSection = document.getElementById('players-section');
-        const achievementsSection = document.getElementById('achievements-section');
-        const forumSection = document.getElementById('forum-section');
-        const loginForm = document.getElementById('login-form');
-        const registerForm = document.getElementById('register-form');
-        const authTitle = document.getElementById('auth-title');
-        const toggleText = document.getElementById('toggle-text');
-        const welcomeMessage = document.getElementById('welcome-message');
-        const newPostContent = document.getElementById('new-post-content');
-        const submitPost = document.getElementById('submit-post');
-        const forumPostsContainer = document.getElementById('forum-posts-container');
-        const newPostForm = document.getElementById('new-post-form');
-
-        // ==================== 显示登录/注册表单 ====================
-        function showLoginForm() {
-            loginForm.classList.remove('hidden');
-            registerForm.classList.add('hidden');
-            authTitle.textContent = '用户登录';
-            toggleText.innerHTML = '还没有账号？<a href="#" id="toggle-link">立即注册</a>';
+        console.log('🔧 开始加载乒乓球论坛应用...');
+        
+        // ==================== 全局配置 ====================
+        // 注意：这里只是声明，实际初始化在DOMContentLoaded后
+        let supabase = null;
+        const SUPABASE_CONFIG = {
+            url: 'https://evlbhdfjycjkoamuwmzx.supabase.co',
+            anonKey: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImV2bGJoZGZqeWNqa29hbXV3bXp4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjU3NzU2MDEsImV4cCI6MjA4MTM1MTYwMX0.9gGfrOHOSG0tl2vsfynuoH2gzqQGIfouNrUKHzgWOXg',
+            topicId: 'pingpong_forum'
+        };
+        
+        // ==================== DOM元素引用 ====================
+        let authSection, welcomeSection, historySection, playersSection, achievementsSection, forumSection;
+        let loginForm, registerForm, authTitle, toggleText, welcomeMessage;
+        let newPostContent, submitPost, forumPostsContainer, newPostForm;
+        
+        // ==================== 主初始化函数 ====================
+        async function initializeApp() {
+            console.log('🚀 初始化应用...');
+            
+            try {
+                // 1. 获取DOM元素
+                getDOMElements();
+                
+                // 2. 检查Supabase库
+                if (!checkSupabaseLibrary()) {
+                    throw new Error('Supabase库加载失败');
+                }
+                
+                // 3. 初始化Supabase客户端
+                await initializeSupabaseClient();
+                
+                // 4. 绑定事件
+                bindEventListeners();
+                
+                // 5. 检查登录状态
+                checkLoginStatus();
+                
+                console.log('✅ 应用初始化完成');
+                console.log('Supabase客户端状态:', supabase ? '已初始化' : '未初始化');
+                console.log('Supabase.from方法:', supabase?.from ? '可用' : '不可用');
+                
+            } catch (error) {
+                console.error('❌ 应用初始化失败:', error);
+                showGlobalError('系统初始化失败: ' + error.message);
+            }
         }
         
-        function showRegisterForm() {
-            loginForm.classList.add('hidden');
-            registerForm.classList.remove('hidden');
-            authTitle.textContent = '用户注册';
-            toggleText.innerHTML = '已有账号？<a href="#" id="toggle-link">立即登录</a>';
+        function getDOMElements() {
+            console.log('📋 获取DOM元素...');
+            authSection = document.getElementById('auth-section');
+            welcomeSection = document.getElementById('welcome-section');
+            historySection = document.getElementById('history-section');
+            playersSection = document.getElementById('players-section');
+            achievementsSection = document.getElementById('achievements-section');
+            forumSection = document.getElementById('forum-section');
+            loginForm = document.getElementById('login-form');
+            registerForm = document.getElementById('register-form');
+            authTitle = document.getElementById('auth-title');
+            toggleText = document.getElementById('toggle-text');
+            welcomeMessage = document.getElementById('welcome-message');
+            newPostContent = document.getElementById('new-post-content');
+            submitPost = document.getElementById('submit-post');
+            forumPostsContainer = document.getElementById('forum-posts-container');
+            newPostForm = document.getElementById('new-post-form');
+            console.log('✅ DOM元素获取完成');
         }
-
-        // ==================== 事件委托处理 ====================
-        document.addEventListener('click', function(e) {
-            // 处理登录/注册切换
+        
+        function checkSupabaseLibrary() {
+            console.log('🔍 检查Supabase库...');
+            if (typeof window.supabase === 'undefined') {
+                console.error('❌ window.supabase 未定义');
+                return false;
+            }
+            if (typeof window.supabase.createClient !== 'function') {
+                console.error('❌ window.supabase.createClient 不是函数');
+                return false;
+            }
+            console.log('✅ Supabase库检查通过');
+            return true;
+        }
+        
+        async function initializeSupabaseClient() {
+            console.log('🔌 初始化Supabase客户端...');
+            
+            try {
+                // 创建客户端
+                supabase = window.supabase.createClient(
+                    SUPABASE_CONFIG.url,
+                    SUPABASE_CONFIG.anonKey
+                );
+                
+                console.log('✅ Supabase客户端创建成功');
+                console.log('客户端对象:', supabase);
+                
+                // 测试连接
+                await testSupabaseConnection();
+                
+            } catch (error) {
+                console.error('❌ Supabase客户端初始化失败:', error);
+                throw error;
+            }
+        }
+        
+        async function testSupabaseConnection() {
+            console.log('📡 测试Supabase连接...');
+            
+            try {
+                const { data, error } = await supabase
+                    .from('comments')
+                    .select('id')
+                    .limit(1);
+                    
+                if (error) {
+                    console.warn('⚠️ Supabase连接测试有警告:', error.message);
+                } else {
+                    console.log('✅ Supabase连接测试成功');
+                }
+                
+                return true;
+            } catch (error) {
+                console.error('❌ Supabase连接测试失败:', error);
+                return false;
+            }
+        }
+        
+        function bindEventListeners() {
+            console.log('🔗 绑定事件监听器...');
+            
+            // 登录表单
+            loginForm.addEventListener('submit', handleLogin);
+            
+            // 注册表单
+            registerForm.addEventListener('submit', handleRegister);
+            
+            // 发表评论
+            submitPost.addEventListener('click', handlePostComment);
+            
+            // 事件委托
+            document.addEventListener('click', handleGlobalClicks);
+            
+            console.log('✅ 事件监听器绑定完成');
+        }
+        
+        // ==================== 事件处理函数 ====================
+        function handleLogin(e) {
+            e.preventDefault();
+            console.log('👤 处理登录...');
+            
+            const username = document.getElementById('login-username').value.trim();
+            const password = document.getElementById('login-password').value;
+            
+            if (!username || !password) {
+                alert('请输入用户名和密码');
+                return;
+            }
+            
+            // 模拟登录
+            localStorage.setItem('isLoggedIn', 'true');
+            localStorage.setItem('username', username);
+            
+            // 清空表单
+            document.getElementById('login-username').value = '';
+            document.getElementById('login-password').value = '';
+            
+            // 更新UI
+            updateNavigation();
+            showSection('home');
+            welcomeMessage.textContent = `欢迎，${username}！`;
+            
+            console.log('✅ 登录成功:', username);
+        }
+        
+        function handleRegister(e) {
+            e.preventDefault();
+            console.log('📝 处理注册...');
+            
+            const username = document.getElementById('register-username').value.trim();
+            const email = document.getElementById('register-email').value.trim();
+            const password = document.getElementById('register-password').value;
+            const confirm = document.getElementById('register-confirm').value;
+            
+            if (!username || !email || !password || !confirm) {
+                alert('请填写所有字段');
+                return;
+            }
+            
+            if (password !== confirm) {
+                alert('两次输入的密码不一致');
+                return;
+            }
+            
+            // 模拟注册并登录
+            localStorage.setItem('isLoggedIn', 'true');
+            localStorage.setItem('username', username);
+            
+            // 清空表单
+            document.getElementById('register-username').value = '';
+            document.getElementById('register-email').value = '';
+            document.getElementById('register-password').value = '';
+            document.getElementById('register-confirm').value = '';
+            
+            // 切换回登录表单
+            showLoginForm();
+            
+            // 更新UI
+            updateNavigation();
+            showSection('home');
+            welcomeMessage.textContent = `欢迎，${username}！`;
+            
+            console.log('✅ 注册成功:', username);
+        }
+        
+        function handleGlobalClicks(e) {
+            // 登录/注册切换
             if (e.target && e.target.id === 'toggle-link') {
                 e.preventDefault();
                 if (loginForm.classList.contains('hidden')) {
@@ -823,206 +999,256 @@
                 } else {
                     showRegisterForm();
                 }
+                return;
             }
             
-            // 处理导航点击
+            // 导航点击
             if (e.target && e.target.classList.contains('nav-link')) {
                 e.preventDefault();
                 const target = e.target.getAttribute('data-target');
+                console.log('🎯 导航点击:', target);
                 
-                // 如果未登录，强制显示登录页面
+                // 检查登录状态
                 if (localStorage.getItem('isLoggedIn') !== 'true' && target !== 'login') {
                     showSection('login');
+                    alert('请先登录！');
                     return;
                 }
                 
-                // 如果是退出登录
+                // 退出登录
                 if (target === 'login' && localStorage.getItem('isLoggedIn') === 'true') {
-                    localStorage.removeItem('isLoggedIn');
-                    localStorage.removeItem('username');
-                    showSection('login');
+                    if (confirm('确定要退出登录吗？')) {
+                        localStorage.removeItem('isLoggedIn');
+                        localStorage.removeItem('username');
+                        showSection('login');
+                        alert('已退出登录');
+                    }
                     return;
                 }
                 
+                // 正常导航
                 showSection(target);
                 
-                // 如果是论坛页面，加载并实时监听评论
+                // 如果是论坛，加载评论
                 if (target === 'forum') {
                     loadAndSubscribeToComments();
                 }
             }
-        });
-
-        // ==================== 登录表单提交 ====================
-        loginForm.addEventListener('submit', function(e) {
-            e.preventDefault();
-            const username = document.getElementById('login-username').value;
-            const password = document.getElementById('login-password').value;
-            
-            // 简单验证
-            if (username && password) {
-                // 模拟登录成功
-                localStorage.setItem('isLoggedIn', 'true');
-                localStorage.setItem('username', username);
-                
-                // 显示欢迎信息和球员资料
-                authSection.classList.add('hidden');
-                welcomeSection.classList.remove('hidden');
-                historySection.classList.remove('hidden');
-                
-                // 更新欢迎信息
-                welcomeMessage.textContent = `欢迎，${username}！`;
-                
-                // 更新导航状态
-                updateNavigation();
-            } else {
-                alert('请输入用户名和密码');
-            }
-        });
-
-        // ==================== 注册表单提交 ====================
-        registerForm.addEventListener('submit', function(e) {
-            e.preventDefault();
-            const username = document.getElementById('register-username').value;
-            const email = document.getElementById('register-email').value;
-            const password = document.getElementById('register-password').value;
-            const confirm = document.getElementById('register-confirm').value;
-            
-            // 简单验证
-            if (username && email && password && confirm) {
-                if (password !== confirm) {
-                    alert('两次输入的密码不一致');
-                    return;
-                }
-                
-                // 模拟注册成功并自动登录
-                localStorage.setItem('isLoggedIn', 'true');
-                localStorage.setItem('username', username);
-                
-                // 显示欢迎信息和球员资料
-                authSection.classList.add('hidden');
-                welcomeSection.classList.remove('hidden');
-                historySection.classList.remove('hidden');
-                
-                // 更新欢迎信息
-                welcomeMessage.textContent = `欢迎，${username}！`;
-                
-                // 更新导航状态
-                updateNavigation();
-            } else {
-                alert('请填写所有字段');
-            }
-        });
-
-        // ==================== 显示指定部分 ====================
-        function showSection(section) {
-            // 隐藏所有部分
-            authSection.classList.add('hidden');
-            welcomeSection.classList.add('hidden');
-            historySection.classList.add('hidden');
-            playersSection.classList.add('hidden');
-            achievementsSection.classList.add('hidden');
-            forumSection.classList.add('hidden');
-            
-            // 显示指定部分
-            if (section === 'login') {
-                authSection.classList.remove('hidden');
-                showLoginForm();
-            } else if (section === 'home') {
-                welcomeSection.classList.remove('hidden');
-                historySection.classList.remove('hidden');
-            } else if (section === 'players') {
-                playersSection.classList.remove('hidden');
-            } else if (section === 'achievements') {
-                achievementsSection.classList.remove('hidden');
-            } else if (section === 'forum') {
-                forumSection.classList.remove('hidden');
-            }
         }
-
-        // ==================== 更新导航状态 ====================
-        function updateNavigation() {
-            const isLoggedIn = localStorage.getItem('isLoggedIn') === 'true';
-            
-            if (isLoggedIn) {
-                // 更新导航链接文本
-                const loginLink = document.querySelector('.nav-link[data-target="login"]');
-                if (loginLink) {
-                    loginLink.textContent = '退出登录';
-                }
-            }
-        }
-
-        // ==================== Supabase实时评论系统 ====================
         
-        // 加载并实时监听评论
-        function loadAndSubscribeToComments() {
-            // 清空当前帖子容器
-            forumPostsContainer.innerHTML = '';
+        async function handlePostComment() {
+            console.log('💬 处理发表评论...');
             
-            // 首先获取所有现有评论
-            fetchComments();
-            
-            // 然后建立实时监听
-            supabase
-                .channel('public:comments')
-                .on('postgres_changes',
-                    { 
-                        event: 'INSERT', 
-                        schema: 'public', 
-                        table: 'comments',
-                        filter: `topic_id=eq.${forumTopicId}` // 只监听本论坛的评论
-                    },
-                    (payload) => {
-                        // 当有新的评论插入时，立即添加到页面顶部
-                        prependComment(payload.new);
-                    }
-                )
-                .subscribe();
-        }
-
-        // 获取所有历史评论
-        async function fetchComments() {
-            const { data: comments, error } = await supabase
-                .from('comments')
-                .select('*')
-                .eq('topic_id', forumTopicId)
-                .order('created_at', { ascending: false }); // 按时间倒序，新的在前
-
-            if (error) {
-                console.error('加载评论失败:', error);
-                displayErrorMessage('评论加载失败，请刷新页面重试。');
-            } else {
-                displayComments(comments);
-            }
-        }
-
-        // 在页面上展示评论列表
-        function displayComments(comments) {
-            if (comments.length === 0) {
-                forumPostsContainer.innerHTML = '<p style="color: #666; text-align: center; padding: 20px;">还没有评论，快来第一个发言吧！</p>';
-                forumPostsContainer.appendChild(newPostForm);
+            const content = newPostContent.value.trim();
+            if (!content) {
+                alert('请输入评论内容');
                 return;
             }
             
-            forumPostsContainer.innerHTML = comments.map(comment => formatComment(comment)).join('');
-            forumPostsContainer.appendChild(newPostForm);
+            const username = localStorage.getItem('username');
+            if (!username) {
+                alert('请先登录才能发表评论');
+                showSection('login');
+                return;
+            }
+            
+            // 检查Supabase客户端
+            if (!supabase || typeof supabase.from !== 'function') {
+                console.error('❌ Supabase客户端不可用:', supabase);
+                alert('系统未初始化完成，请刷新页面重试');
+                return;
+            }
+            
+            try {
+                const { error } = await supabase
+                    .from('comments')
+                    .insert([{
+                        user_name: username,
+                        content: content,
+                        topic_id: SUPABASE_CONFIG.topicId
+                    }]);
+                
+                if (error) {
+                    throw error;
+                }
+                
+                // 清空输入框
+                newPostContent.value = '';
+                console.log('✅ 评论发表成功');
+                
+            } catch (error) {
+                console.error('❌ 发表评论失败:', error);
+                alert('发表评论失败: ' + error.message);
+            }
         }
-
-        // 显示错误信息
-        function displayErrorMessage(message) {
-            forumPostsContainer.innerHTML = `<p style="color: #e53935; text-align: center; padding: 20px;">${message}</p>`;
-            forumPostsContainer.appendChild(newPostForm);
+        
+        // ==================== 页面功能函数 ====================
+        function showLoginForm() {
+            console.log('📱 显示登录表单');
+            loginForm.classList.remove('hidden');
+            registerForm.classList.add('hidden');
+            authTitle.textContent = '用户登录';
+            toggleText.innerHTML = '还没有账号？<a href="#" id="toggle-link">立即注册</a>';
         }
-
-        // 将单条评论格式化为HTML
+        
+        function showRegisterForm() {
+            console.log('📱 显示注册表单');
+            loginForm.classList.add('hidden');
+            registerForm.classList.remove('hidden');
+            authTitle.textContent = '用户注册';
+            toggleText.innerHTML = '已有账号？<a href="#" id="toggle-link">立即登录</a>';
+        }
+        
+        function showSection(section) {
+            console.log('🔄 切换页面:', section);
+            
+            // 隐藏所有部分
+            const sections = [authSection, welcomeSection, historySection, playersSection, achievementsSection, forumSection];
+            sections.forEach(section => section?.classList.add('hidden'));
+            
+            // 显示目标部分
+            switch (section) {
+                case 'login':
+                    authSection.classList.remove('hidden');
+                    showLoginForm();
+                    break;
+                case 'home':
+                    welcomeSection.classList.remove('hidden');
+                    historySection.classList.remove('hidden');
+                    break;
+                case 'players':
+                    playersSection.classList.remove('hidden');
+                    break;
+                case 'achievements':
+                    achievementsSection.classList.remove('hidden');
+                    break;
+                case 'forum':
+                    forumSection.classList.remove('hidden');
+                    break;
+            }
+        }
+        
+        function updateNavigation() {
+            const isLoggedIn = localStorage.getItem('isLoggedIn') === 'true';
+            const username = localStorage.getItem('username');
+            const loginLink = document.querySelector('.nav-link[data-target="login"]');
+            
+            if (loginLink) {
+                loginLink.textContent = isLoggedIn ? '退出登录' : '登录';
+                if (isLoggedIn && username) {
+                    loginLink.title = `当前用户: ${username}`;
+                } else {
+                    loginLink.title = '';
+                }
+            }
+        }
+        
+        function checkLoginStatus() {
+            console.log('🔐 检查登录状态...');
+            const isLoggedIn = localStorage.getItem('isLoggedIn') === 'true';
+            const username = localStorage.getItem('username');
+            
+            if (isLoggedIn && username) {
+                console.log('✅ 用户已登录:', username);
+                updateNavigation();
+                showSection('home');
+                welcomeMessage.textContent = `欢迎，${username}！`;
+            } else {
+                console.log('👤 用户未登录');
+                showSection('login');
+            }
+        }
+        
+        // ==================== 论坛功能 ====================
+        async function loadAndSubscribeToComments() {
+            console.log('📝 加载评论...');
+            
+            if (!supabase) {
+                console.error('❌ Supabase客户端未初始化');
+                return;
+            }
+            
+            // 清空容器
+            forumPostsContainer.innerHTML = '<p style="color:#666; text-align:center; padding:20px;">正在加载评论...</p>';
+            
+            try {
+                // 加载现有评论
+                await fetchComments();
+                
+                // 建立实时监听
+                console.log('📡 建立实时监听...');
+                supabase
+                    .channel('public:comments')
+                    .on('postgres_changes',
+                        {
+                            event: 'INSERT',
+                            schema: 'public',
+                            table: 'comments',
+                            filter: `topic_id=eq.${SUPABASE_CONFIG.topicId}`
+                        },
+                        (payload) => {
+                            console.log('🔄 收到新评论:', payload.new);
+                            prependComment(payload.new);
+                        }
+                    )
+                    .subscribe((status) => {
+                        console.log('📡 实时监听状态:', status);
+                    });
+                    
+            } catch (error) {
+                console.error('❌ 加载评论失败:', error);
+                forumPostsContainer.innerHTML = '<p style="color:#e53935; text-align:center; padding:20px;">加载评论失败，请刷新页面重试。</p>';
+            }
+        }
+        
+        async function fetchComments() {
+            console.log('📥 获取评论数据...');
+            
+            try {
+                const { data: comments, error } = await supabase
+                    .from('comments')
+                    .select('*')
+                    .eq('topic_id', SUPABASE_CONFIG.topicId)
+                    .order('created_at', { ascending: false });
+                
+                if (error) throw error;
+                
+                console.log(`✅ 获取到 ${comments?.length || 0} 条评论`);
+                displayComments(comments || []);
+                
+            } catch (error) {
+                console.error('❌ 获取评论数据失败:', error);
+                throw error;
+            }
+        }
+        
+        function displayComments(comments) {
+            if (comments.length === 0) {
+                forumPostsContainer.innerHTML = '<p style="color:#666; text-align:center; padding:20px;">还没有评论，快来第一个发言吧！</p>';
+                if (newPostForm) {
+                    forumPostsContainer.appendChild(newPostForm);
+                }
+                return;
+            }
+            
+            let html = '';
+            comments.forEach(comment => {
+                html += formatComment(comment);
+            });
+            
+            forumPostsContainer.innerHTML = html;
+            if (newPostForm) {
+                forumPostsContainer.appendChild(newPostForm);
+            }
+        }
+        
         function formatComment(comment) {
-            // 格式化日期
             let displayDate = '刚刚';
             if (comment.created_at) {
                 try {
                     const date = new Date(comment.created_at);
-                    displayDate = date.toLocaleDateString('zh-CN') + ' ' + date.toLocaleTimeString('zh-CN', { hour: '2-digit', minute: '2-digit' });
+                    displayDate = date.toLocaleDateString('zh-CN') + ' ' + 
+                                 date.toLocaleTimeString('zh-CN', { hour: '2-digit', minute: '2-digit' });
                 } catch (e) {
                     displayDate = comment.created_at.split('T')[0] || '未知日期';
                 }
@@ -1031,116 +1257,64 @@
             return `
                 <div class="forum-post" data-id="${comment.id}">
                     <div class="post-header">
-                        <div class="post-author">${comment.user_name || '匿名用户'}</div>
+                        <div class="post-author">${escapeHtml(comment.user_name || '匿名用户')}</div>
                         <div class="post-date">${displayDate}</div>
                     </div>
                     <div class="post-content">
-                        <p>${comment.content}</p>
+                        <p>${escapeHtml(comment.content)}</p>
                     </div>
                 </div>
             `;
         }
-
-        // 将单条新评论添加到页面顶部
+        
         function prependComment(comment) {
             const commentHtml = formatComment(comment);
             
-            // 如果当前显示"没有评论"的消息，先清除它
+            // 如果当前显示"没有评论"的消息，先清除
             const firstChild = forumPostsContainer.firstChild;
-            if (firstChild && firstChild.textContent.includes('还没有评论')) {
+            if (firstChild && firstChild.textContent && firstChild.textContent.includes('还没有评论')) {
                 forumPostsContainer.innerHTML = '';
-                forumPostsContainer.appendChild(newPostForm);
+                if (newPostForm) {
+                    forumPostsContainer.appendChild(newPostForm);
+                }
             }
             
-            // 将新评论插入到表单之前
+            // 插入新评论
             forumPostsContainer.insertAdjacentHTML('afterbegin', commentHtml);
         }
-
-        // 发表新评论
-        async function postNewComment(content) {
-            const username = localStorage.getItem('username');
-            if (!username) {
-                alert('请先登录才能发表评论');
-                return false;
-            }
-            
-            if (!content.trim()) {
-                alert('评论内容不能为空');
-                return false;
-            }
-            
-            try {
-                const { error } = await supabase
-                    .from('comments')
-                    .insert([{ 
-                        user_name: username, 
-                        content: content.trim(),
-                        topic_id: forumTopicId 
-                    }]);
-
-                if (error) {
-                    throw error;
-                }
-                
-                return true;
-            } catch (error) {
-                console.error('发表评论失败:', error);
-                alert('发表评论失败: ' + error.message);
-                return false;
-            }
+        
+        // ==================== 工具函数 ====================
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
         }
-
-        // ==================== 发表新评论事件 ====================
-        submitPost.addEventListener('click', async function() {
-            const content = newPostContent.value.trim();
-            if (!content) {
-                alert('请输入评论内容');
-                return;
-            }
+        
+        function showGlobalError(message) {
+            const errorDiv = document.createElement('div');
+            errorDiv.style.cssText = 'position:fixed; top:20px; left:50%; transform:translateX(-50%); background:#e53935; color:white; padding:15px; border-radius:5px; z-index:9999;';
+            errorDiv.textContent = message;
+            document.body.appendChild(errorDiv);
             
-            const success = await postNewComment(content);
-            
-            if (success) {
-                // 清空输入框
-                newPostContent.value = '';
-                // 注意：页面更新由实时监听自动完成，无需额外操作
-            }
-        });
-
-        // 也支持按Enter键发表评论
-        newPostContent.addEventListener('keydown', function(e) {
-            if (e.key === 'Enter' && e.ctrlKey) {
-                submitPost.click();
-            }
-        });
-
-        // ==================== 检查登录状态 ====================
-        function checkLoginStatus() {
-            const isLoggedIn = localStorage.getItem('isLoggedIn') === 'true';
-            
-            if (isLoggedIn) {
-                authSection.classList.add('hidden');
-                welcomeSection.classList.remove('hidden');
-                historySection.classList.remove('hidden');
-                updateNavigation();
-            } else {
-                authSection.classList.remove('hidden');
-                welcomeSection.classList.add('hidden');
-                historySection.classList.add('hidden');
-                playersSection.classList.add('hidden');
-                achievementsSection.classList.add('hidden');
-                forumSection.classList.add('hidden');
-            }
+            setTimeout(() => {
+                errorDiv.remove();
+            }, 5000);
         }
-
-        // ==================== 页面加载时初始化 ====================
+        
+        // ==================== 页面加载完成 ====================
         document.addEventListener('DOMContentLoaded', function() {
-            checkLoginStatus();
-            showLoginForm();
+            console.log('📄 DOM加载完成');
+            initializeApp();
         });
+        
+        // 确保Supabase库加载完成
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', initializeApp);
+        } else {
+            initializeApp();
+        }
+        
+        console.log('🎉 乒乓球论坛应用脚本加载完成');
     </script>
 </body>
 </html>
-
-
-
